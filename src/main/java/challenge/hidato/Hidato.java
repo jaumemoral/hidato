@@ -2,8 +2,10 @@ package challenge.hidato;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Hidato {
 
@@ -45,20 +47,20 @@ public class Hidato {
 		//int i=cell.getNumber();
 		//putNumber(cell,i+1);
 	}
-
+/*
 	public void markInitialPossibles() {
 		int n=getMaxNumber();
 		for (Cell cell: index) {
 			for (int i=1;i<=n;i++) if (cell.isEmpty()) cell.addAsPossible(i);
 		}
 	}
-
+*/
 	public void markPossibles() {
 		for (Cell cell: index) {
 			if (cell.isNumber()) {
 				for (Cell adjacent:getAdjacents(cell)) {
-					adjacent.addAsPossible(cell.getNumber()+1);
-					adjacent.addAsPossible(cell.getNumber()-1);
+					adjacent.addAsPossible(cell.getNumber()+1,cell);
+					adjacent.addAsPossible(cell.getNumber()-1,cell);
 				}
 			}
 		}
@@ -150,7 +152,7 @@ public class Hidato {
 class Cell {
 	int i,j;
 	String value;
-	Map<Integer,Integer> possibles=new HashMap<Integer,Integer>();
+	Map<Integer,Set<Cell>> possibles=new HashMap<Integer,Set<Cell>>();
 
 	Cell (int i, int j, String value) {
 		this.i=i;
@@ -184,9 +186,9 @@ class Cell {
 		return isValid() && !isEmpty();
 	}
 
-	void addAsPossible(int value) {
-		possibles.putIfAbsent(value, 0);
-		possibles.put(value,possibles.get(value)+1);
+	void addAsPossible(int value,Cell cell) {
+		if (possibles.get(value)==null) possibles.put(value, new HashSet<Cell>());
+		possibles.get(value).add(cell);
 	}
 
 	void removeAsPossible(int value) {
@@ -195,7 +197,7 @@ class Cell {
 
 	boolean isSure(int value) {
 		try {
-			return possibles.get(value)==2;
+			return possibles.get(value).size()==2;
 		} catch (Exception e) {
 			return false;
 		}
